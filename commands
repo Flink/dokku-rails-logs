@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$(dirname $0)/../common/functions"
+set +e
+
+case "$1" in
+  rails:logs)
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    verify_app_name "$2"
+    APP="$2"
+    if [[ $3 == '-t' ]]; then
+      OPTS="-f"
+    fi
+    RAILS_ENV=$(dokku config "$APP" | grep -E 'RACK_ENV|RAILS_ENV' | grep -E '[a-z]*' -o)
+    [[ $RAILS_ENV ]] || RAILS_ENV="production"
+    ID=$(docker ps -f status=running | grep "dokku/$APP" | cut -d ' ' -f 1)
+    if [[ -z $ID ]]; then
+      echo "$APP is not started!"
+      exit 1
+    fi
+    docker exec "$ID" tail -n 100 "$OPTS" "/app/log/${RAILS_ENV}.log"
+    ;;
+
+  help | rails:logs:help)
+    cat && cat<<EOF
+    rails:logs <app> [-t]                           Display rails logs of provided app
+EOF
+    ;;
+
+  *)
+    exit $DOKKU_NOT_IMPLEMENTED_EXIT
+    ;;
+
+esac
