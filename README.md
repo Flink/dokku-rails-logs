@@ -1,4 +1,6 @@
-# dokku-rails-logs
+# (DEPRECATED) dokku-rails-logs
+
+THIS PLUGIN IS NOW DEPRECATED, YOU SHOULD USE 12FACTOR GEM TO SEND YOUR LOGS TO STDOUT INSTEAD
 
 dokku-rails-logs is a plugin for [dokku][dokku] that prints the logs of your Rails app.
 
